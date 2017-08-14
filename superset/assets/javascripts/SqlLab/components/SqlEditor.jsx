@@ -12,10 +12,11 @@ import {
   Tooltip,
   Collapse,
 } from 'react-bootstrap';
+import SplitPane from 'react-split-pane';
 
 import Button from '../../components/Button';
 
-import ResizableAceEditor from './ResizableAceEditor';
+import AceEditorWrapper from './AceEditorWrapper';
 import SouthPane from './SouthPane';
 import SaveQuery from './SaveQuery';
 import Timer from '../../components/Timer';
@@ -46,9 +47,15 @@ const defaultProps = {
 class SqlEditor extends React.PureComponent {
   constructor(props) {
     super(props);
+
+    this.handleDragStarted = this.handleDragStarted.bind(this);
+    this.handleDragFinished = this.handleDragFinished.bind(this);
+
     this.state = {
       autorun: props.queryEditor.autorun,
       ctas: '',
+      editorHeight: 150,
+      dragging: false,
     };
   }
   componentDidMount() {
@@ -103,8 +110,24 @@ class SqlEditor extends React.PureComponent {
     return window.innerHeight - tabNavHeight - navBarHeight - mysteryVerticalHeight;
   }
 
+  handleDragStarted() {
+    this.setState({
+      ...this.state,
+      dragging: true,
+    });
+  }
+
+  handleDragFinished(height) {
+    this.setState({
+      ...this.state,
+      editorHeight: height,
+      dragging: false,
+    });
+  }
+
   render() {
     const qe = this.props.queryEditor;
+    const draggingClass = this.state.dragging ? 'dragging' : '';
     let limitWarning = null;
     if (this.props.latestQuery && this.props.latestQuery.limit_reached) {
       const tooltip = (
@@ -219,23 +242,36 @@ class SqlEditor extends React.PureComponent {
               height: this.sqlEditorHeight(),
             }}
           >
-            <ResizableAceEditor
-              actions={this.props.actions}
-              onBlur={this.setQueryEditorSql.bind(this)}
-              queryEditor={this.props.queryEditor}
-              onAltEnter={this.runQuery.bind(this)}
-              sql={this.props.queryEditor.sql}
-              tables={this.props.tables}
-              defaultHeight={200}
-              minHeight={100}
-            />
-            {editorBottomBar}
-            <br />
-            <SouthPane
-              editorQueries={this.props.editorQueries}
-              dataPreviewQueries={this.props.dataPreviewQueries}
-              actions={this.props.actions}
-            />
+            <SplitPane
+              split="horizontal"
+              onDragStarted={this.handleDragStarted}
+              onDragFinished={this.handleDragFinished}
+              minSize={200}
+              maxSize={this.sqlEditorHeight() - 200}
+              styleProps={{ position: 'relative' }}
+            >
+              <div
+                style={{ width: '100%' }}
+                className={draggingClass}
+              >
+                <AceEditorWrapper
+                  actions={this.props.actions}
+                  onBlur={this.setQueryEditorSql.bind(this)}
+                  queryEditor={this.props.queryEditor}
+                  onAltEnter={this.runQuery.bind(this)}
+                  sql={this.props.queryEditor.sql}
+                  tables={this.props.tables}
+                  height={this.state.editorHeight - 50 + 'px'}
+                />
+                {editorBottomBar}
+              </div>
+              <SouthPane
+                className={draggingClass}
+                editorQueries={this.props.editorQueries}
+                dataPreviewQueries={this.props.dataPreviewQueries}
+                actions={this.props.actions}
+              />
+            </SplitPane>
           </Col>
         </Row>
       </div>

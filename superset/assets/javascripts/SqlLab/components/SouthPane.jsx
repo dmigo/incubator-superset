@@ -4,6 +4,7 @@ import shortid from 'shortid';
 import { Alert, Tab, Tabs } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import {AutoSizer} from 'react-virtualized';
 
 import * as Actions from '../actions';
 import QueryHistory from './QueryHistory';
@@ -18,6 +19,7 @@ const propTypes = {
   dataPreviewQueries: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   activeSouthPaneTab: PropTypes.string,
+  className: PropTypes.string,
 };
 
 const defaultProps = {
@@ -67,13 +69,17 @@ class SouthPane extends React.PureComponent {
     let results;
     if (latestQuery) {
       results = (
-        <ResultSet
-          showControls
-          search
-          query={latestQuery}
-          actions={props.actions}
-          height={this.state.innerTabHeight}
-        />
+        <AutoSizer disableWidth>
+          {({ height }) => (
+            <ResultSet
+              showControls
+              search
+              query={latestQuery}
+              actions={props.actions}
+              height={height}
+            />
+          )}
+        </AutoSizer>
       );
     } else {
       results = <Alert bsStyle="info">Run a query to display results here</Alert>;
@@ -84,25 +90,31 @@ class SouthPane extends React.PureComponent {
         title={`Preview for ${query.tableName}`}
         eventKey={query.id}
         key={query.id}
+        style={{display: ''}}
       >
-        <ResultSet
-          query={query}
-          visualize={false}
-          csv={false}
-          actions={props.actions}
-          cache
-          height={this.state.innerTabHeight}
-        />
+        <AutoSizer disableWidth>
+          {({ height }) => (
+            <ResultSet
+              query={query}
+              visualize={false}
+              csv={false}
+              actions={props.actions}
+              cache
+              height={height}
+            />
+          )}
+        </AutoSizer>
       </Tab>
     ));
 
     return (
-      <div className="SouthPane">
+      <div className={"SouthPane " + this.props.className}>
         <Tabs
           bsStyle="tabs"
           id={shortid.generate()}
           activeKey={this.props.activeSouthPaneTab}
           onSelect={this.switchTab.bind(this)}
+          className="Tabs"
         >
           <Tab
             title="Results"
@@ -114,7 +126,7 @@ class SouthPane extends React.PureComponent {
             title="Query History"
             eventKey="History"
           >
-            <div style={{ height: `${this.state.innerTabHeight}px`, overflow: 'scroll' }}>
+            <div className="QueryWrapper">
               <QueryHistory queries={props.editorQueries} actions={props.actions} />
             </div>
           </Tab>

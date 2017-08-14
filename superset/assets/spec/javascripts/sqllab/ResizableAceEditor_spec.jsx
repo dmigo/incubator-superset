@@ -20,31 +20,35 @@ function stubGetTopOffset(value) {
 }
 
 describe('ResizableAceEditor', () => {
+  const mockedProps = {
+    defaultHeight: 20,
+    minHeight: 10,
+  };
   it('is valid', () => {
     expect(
-      React.isValidElement(<ResizableAceEditore />),
+      React.isValidElement(<ResizableAceEditore {...mockedProps} />),
     ).to.equal(true);
   });
   it('render a AceEditorWrapper', () => {
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     expect(wrapper.find(AceEditorWrapper)).to.have.length(1);
   });
   it('render a DragBar', () => {
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     expect(wrapper.find('.DragBar')).to.have.length(1);
   });
   it('has dragging set to false by default', () => {
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     expect(wrapper.state().dragging).to.be.equal(false);
   });
   it('has dragging set to true when dragged', () => {
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     const dragbar = wrapper.find('.DragBar');
     dragbar.simulate('mouseDown');
     expect(wrapper.state().dragging).to.be.equal(true);
   });
   it('has dragging set to false when dropped', () => {
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     const dragbar = wrapper.find('.DragBar');
     dragbar.simulate('mouseDown');
     simulateWindowEvent('mouseup');
@@ -52,7 +56,7 @@ describe('ResizableAceEditor', () => {
   });
   it('adjusts height on mousemove', () => {
     stubGetTopOffset(0);
-    const wrapper = shallow(<ResizableAceEditore />);
+    const wrapper = shallow(<ResizableAceEditore {...mockedProps} />);
     const dragbar = wrapper.find('.DragBar');
     dragbar.simulate('mouseDown');
     simulateWindowEvent('mousemove', { pageY: 100 });

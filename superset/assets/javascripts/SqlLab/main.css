@@ -247,7 +247,8 @@ div.tablePopover:hover {
     padding-top: 3px;
 }
 .ace_editor {
-  border: 1px solid #ccc;
+    border: 1px solid #ccc;
+    margin: 0 0 10px;
 }
 
 .Select-menu-outer {
@@ -258,8 +259,29 @@ div.tablePopover:hover {
     background-color: #f4f4f4;
 }
 
+.SouthPane {
+    margin: 10px 0 0;
+}
+
 .SouthPane .tab-content {
     padding-top: 10px;
+}
+
+.SqlEditor .SplitPane .dragging {
+    opacity: 0;
+}
+
+.SqlEditor .SplitPane .Pane2 {
+    display: flex;
+}
+
+.SqlEditor .SplitPane .Pane {
+    width: 100%;
+}
+
+.SqlEditor .SplitPane .SouthPane {
+    display: flex;
+    overflow: scroll;
 }
 
 .NorthPane {
